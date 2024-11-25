@@ -3,7 +3,6 @@
 #include "XML/Utilities.h"
 #include "DDRec/MaterialManager.h"
 #include "DDRec/Vector3D.h"
-
 #include <DDRec/DetectorData.h>
 
 // like v02, but in xml the layer dimensions are along the electrode
@@ -760,13 +759,25 @@ static dd4hep::detail::Ref_t createECalBarrelInclined(dd4hep::Detector& aLcdd,
   caloDetElem.addExtension<dd4hep::rec::LayeredCalorimeterData>(caloData);
 
   caloData->extent[0] = Rmin;
-  caloData->extent[1] = Rmax;
+  caloData->extent[1] = Rmax; // or r_max ?
   caloData->extent[2] = 0.;      // NN: for barrel detectors this is 0
   caloData->extent[3] = caloDim.dz();
   
   // Set type flags
   dd4hep::xml::setDetectorTypeFlag(xmlDetElem, caloDetElem);
+  dd4hep::rec::MaterialManager matMgr(envelopeVol);
+  dd4hep::rec::LayeredCalorimeterData::Layer caloLayer;
+  
+  double rad_first = Rmin;
+  double rad_last = 0;
+  double scale_fact = dR / (-Rmin * cos(angle) + sqrt(pow(Rmax, 2) - pow(Rmin * sin(angle), 2)));
+  // since the layer height is given along the electrode and not along the radius it needs to be scaled to get the values of layer height radially
+  std::cout << "Scaling factor " << scale_fact << std::endl;
+  for (size_t il = 0; il < layerHeight.size(); il++) {
+    double thickness_sen = 0.;
+    double absorberThickness = 0.;
 
+<<<<<<< HEAD
   // Information needed for Pandora: average interaction and radiation lengths per layer
   dd4hep::rec::MaterialManager matMgr(envelopeVol);
   dd4hep::rec::LayeredCalorimeterData::Layer caloLayer;
@@ -785,6 +796,13 @@ static dd4hep::detail::Ref_t createECalBarrelInclined(dd4hep::Detector& aLcdd,
     dd4hep::rec::Vector3D ivr2 = dd4hep::rec::Vector3D(0., rad_last, 0);  // defining end vector points of the given layer
     std::cout << "radius first " << rad_first << " radius last " << rad_last << std::endl;
 
+=======
+    rad_last = rad_first + (layerHeight[il] * scale_fact);
+    dd4hep::rec::Vector3D ivr1 = dd4hep::rec::Vector3D(0., rad_first, 0); // defining starting vector points of the given layer
+    dd4hep::rec::Vector3D ivr2 = dd4hep::rec::Vector3D(0., rad_last, 0);  // defining end vector points of the given layer
+
+    std::cout << "radius first " << rad_first << " radius last " << rad_last << std::endl;
+>>>>>>> origin/main
     const dd4hep::rec::MaterialVec &materials = matMgr.materialsBetween(ivr1, ivr2); // calling material manager to get material info between two points
     auto mat = matMgr.createAveragedMaterial(materials);                             // creating average of all the material between two points to calculate X0 and lambda of averaged material
     const double nRadiationLengths = mat.radiationLength();
@@ -798,10 +816,10 @@ static dd4hep::detail::Ref_t createECalBarrelInclined(dd4hep::Detector& aLcdd,
 
       std::string str2(materials.at(imat).first.name());
       if (str1.compare(str2) == 0){
-          thickness_sen += materials.at(imat).second;
+        thickness_sen += materials.at(imat).second;
       }
       else {
-        absorberThickness += materials.at(imat).second;
+	absorberThickness += materials.at(imat).second;
       }
     }
     rad_first = rad_last;
@@ -820,9 +838,9 @@ static dd4hep::detail::Ref_t createECalBarrelInclined(dd4hep::Detector& aLcdd,
     caloLayer.outer_thickness           = difference_bet_r1r2 / 2;
 
     caloLayer.absorberThickness         = absorberThickness;
-    caloLayer.cellSize0 = 2 * dd4hep::mm;
-    caloLayer.cellSize1 = 2 * dd4hep::mm;
-
+    caloLayer.cellSize0 = 20 * dd4hep::mm;
+    caloLayer.cellSize1 = 20 * dd4hep::mm;
+  
     caloData->layers.push_back(caloLayer);
   }
 

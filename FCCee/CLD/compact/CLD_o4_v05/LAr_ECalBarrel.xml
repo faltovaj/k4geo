@@ -51,7 +51,7 @@
     <!-- calorimeter active volume -->
     <constant name="EMBarrel_rmin" value="BarCryoECal_rmin+CryoBarrelFront+LArBathThicknessFront"/>
     <constant name="EMBarrel_rmax" value="BarCryoECal_rmax-CryoBarrelBack-LArBathThicknessBack"/>
-    <constant name="EMBarrel_dz" value="(ECalBarrel_half_length)-CryoBarrelSide"/>
+    <constant name="EMBarrel_dz" value="BarCryoECal_dz-CryoBarrelSide"/>
     <!-- thickness of active volume between two absorber plates at EMBarrel_rmin, measuring perpendicular to the readout plate -->
     <constant name="LAr_thickness" value="LArGapThickness"/>
     <!-- passive layer consists of lead in the middle and steel on the outside, glued -->
@@ -82,7 +82,8 @@
     <!-- readout for the simulation -->
     <!-- offset in eta is eta max value including cryostat -->
     <readout name="ECalBarrelEta">
-	<segmentation type="GridEta" grid_size_eta="0.01" offset_eta="-1.2"/>
+        <!-- segmentation type="GridTheta_k4geo" grid_size_theta="0.5625" offset_theta="-0.83"/ -->
+        <segmentation type="GridEta_k4geo" grid_size_eta="0.01" offset_eta="-1.2"/>
       <id>system:5,cryo:1,type:3,subtype:3,layer:8,module:11,eta:9</id>
     </readout>
     <!-- readout for the reconstruction -->
